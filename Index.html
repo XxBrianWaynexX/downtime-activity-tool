@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Downtime Activity Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    select, input, button, textarea {
+      margin: 10px 0;
+      padding: 8px;
+      width: 100%;
+    }
+    .map {
+      text-align: center;
+      margin: 20px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .failure {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Downtime Activity Tool</h1>
+    
+    <!-- Trade Route Section -->
+    <h2>Trade Routes</h2>
+    <label for="tradeRoute">Select a Trade Route:</label>
+    <select id="tradeRoute">
+      <option value="Waterdeep to Baldur's Gate">Waterdeep to Baldur's Gate</option>
+      <option value="Neverwinter to Icewind Dale">Neverwinter to Icewind Dale</option>
+      <option value="Calimport to Amn">Calimport to Amn</option>
+      <option value="Silverymoon to Luskan">Silverymoon to Luskan</option>
+      <option value="custom">Custom Route</option>
+    </select>
+    <textarea id="customRoute" placeholder="Describe your custom route (e.g., City A to City B)" style="display:none;"></textarea>
+    <label for="charismaScore">Enter Charisma Score:</label>
+    <input type="number" id="charismaScore" placeholder="Enter charisma score (e.g., 15)" min="1">
+    <button onclick="generateTradeResults()">Get Trade Results</button>
+    <div id="tradeResults"></div>
+    
+    <!-- Mini-Quest Section -->
+    <h2>Mini-Quests</h2>
+    <button onclick="generateMiniQuest()">Get a Mini-Quest</button>
+    <div id="miniQuest"></div>
+    <button id="completeQuestButton" style="display:none;" onclick="completeMiniQuest()">Complete Quest</button>
+    <div id="questResults"></div>
+    
+    <!-- Training Section -->
+    <h2>Training</h2>
+    <label for="trainingClass">Choose a Class to Train:</label>
+    <select id="trainingClass">
+      <option value="Fighter">Fighter</option>
+      <option value="Wizard">Wizard</option>
+      <option value="Rogue">Rogue</option>
+      <option value="Cleric">Cleric</option>
+      <option value="Bard">Bard</option>
+    </select>
+    <button onclick="startTraining()">Start Training</button>
+    <div id="trainingResults"></div>
+  </div>
+
+  <script>
+    // Trade Routes
+    function generateTradeResults() {
+      const route = document.getElementById("tradeRoute").value;
+      const customRoute = document.getElementById("customRoute").value.trim();
+      const charisma = parseInt(document.getElementById("charismaScore").value);
+      const resultsDiv = document.getElementById("tradeResults");
+      
+      if (route === "custom" && customRoute === "") {
+        alert("Please describe your custom trade route!");
+        return;
+      }
+      if (isNaN(charisma) || charisma < 1) {
+        alert("Please enter a valid Charisma score!");
+        return;
+      }
+
+      const tradeRoute = route === "custom" ? customRoute : route;
+      const baseGold = Math.floor(Math.random() * 500) + 200; // Random gold between 200-700
+      const charismaBonus = Math.floor(charisma / 2); // Half of charisma as bonus
+      const totalGold = baseGold + charismaBonus;
+
+      resultsDiv.innerHTML = `
+        <h3>Trade Results</h3>
+        <p>Route: ${tradeRoute}</p>
+        <p>Estimated Time: ${Math.floor(Math.random() * 10) + 5} days</p>
+        <p>Total Gold Earned: ${totalGold} gp (includes ${charismaBonus} gp charisma bonus)</p>
+      `;
+    }
+
+    // Mini-Quests
+    const miniQuests = [
+      "Deliver a secret message to a noble.",
+      "Spy on a rival merchant.",
+      "Help a shopkeeper resolve a dispute.",
+      "Break someone out of jail.",
+      "Research a mysterious artifact.",
+      "Act as hired muscle for a local guild.",
+      "Escort a traveler to a nearby village."
+    ];
+
+    let currentQuest = null;
+
+    function generateMiniQuest() {
+      const randomQuest = miniQuests[Math.floor(Math.random() * miniQuests.length)];
+      currentQuest = randomQuest;
+      document.getElementById("miniQuest").innerHTML = `<p>Your Quest: ${randomQuest}</p>`;
+      document.getElementById("completeQuestButton").style.display = "block";
+    }
+
+    function completeMiniQuest() {
+      if (!currentQuest) return;
+
+      const roll = Math.floor(Math.random() * 20) + 1; // Simulate d20 roll
+      const questResultsDiv = document.getElementById("questResults");
+      const success = roll >= 10; // Success on 10 or higher
+      const gold = Math.floor(Math.random() * 100) + 50; // Gold earned or lost
+
+      if (success) {
+        questResultsDiv.innerHTML = `
+          <h3 class="success">Quest Completed Successfully!</h3>
+          <p>Gold Earned: ${gold} gp</p>
+          <p>Experience Gained: ${Math.floor(Math.random() * 200) + 100} XP</p>
+          <p>Additional Result: You completed "${currentQuest}" without issues!</p>
+        `;
+      } else {
+        questResultsDiv.innerHTML = `
+          <h3 class="failure">Quest Failed!</h3>
+          <p>Gold Lost: ${gold} gp</p>
+          <p>Additional Result: You failed "${currentQuest}" and ran into trouble!</p>
+        `;
+      }
+
+      currentQuest = null;
+      document.getElementById("completeQuestButton").style.display = "none";
+    }
+
+    // Training
+    function startTraining() {
+      const trainingClass = document.getElementById("trainingClass").value;
+      const expGained = Math.floor(Math.random() * 300) + 200; // Random XP between 200-500
+
+      document.getElementById("trainingResults").innerHTML = `
+        <h3>Training Results</h3>
+        <p>Class: ${trainingClass}</p>
+        <p>Experience Gained: ${expGained} XP</p>
+      `;
+    }
+  </script>
+</body>
+</html>
